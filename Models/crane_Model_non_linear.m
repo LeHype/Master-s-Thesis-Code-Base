@@ -1,36 +1,13 @@
 function [derivatives] = crane3DModel_derivation(x, u, varargin)
-% Define default values in a structure
+
+% Define default values is no parameters are provided. 
+
 persistent params
 if isempty(params)
-% defaultParams = struct('Tsx_u',2.1151,'Tsy_u',1.1397 ,'Tsz_u', 9 ,'mc', 0.468, 'mY', 1.155, 'mX',  3.3550, 'l0', 0.1712, 'FaX', 0.001,'FaY', 0.001, 'g', 9.81, 'Tx',  40.3925, 'Ty', 26.4795    , 'Tz', 450  , 'X_Gain', 55.7683 , 'Y_Gain', 12.0128, 'Z_Gain', 35 , 'static_friction_force_z', 10.521 , 'static_friction_force_y', 0.002, 'static_friction_force_x',  0.002);
-% defaultParams = struct('Tsx_u', 2.5207 ,'Tsy_u',1.275 ,'Tsz_u',   8.0438 ,'mc', 0.468, 'mY', 1.155, 'mX',  3.3550, 'l0', 0.1671, 'FaX',  0.047134,'FaY',   0.045191, 'g', 9.81, 'Tx', 44.989 , 'Ty',  23.727     , 'Tz',  510.32  , 'X_Gain', 66.362, 'Y_Gain', 12.0128, 'Z_Gain', 36.976 , 'static_friction_force_z',  11.151 , 'static_friction_force_y', 0.0017608 , 'static_friction_force_x',  0.0020826);
-% defaultParams = struct('Tx',44.989, 'Tsx_u',2.5207, 'Y_Gain',12.9009, 'static_friction_force_y',0.0023103, ...
-%                 'Ty',21.214, 'Tsy_u',1.1266, 'X_Gain',66.362, 'static_friction_force_x',0.0022051, ...
-%                 'Tz',530.25, 'Tsz_u',10.174, 'Z_Gain',39.965, 'static_friction_force_z',12.618, ...
-%                 'FaX',0.020459, 'FaY',0.020473, 'l0',0.19626,'mc', 0.468, 'mY', 1.155, 'mX',  3.3550,'g', 9.81);
-% defaultParams = struct('Tx', 44.999, 'Tsx_u', 2.243, 'Y_Gain', 9.5952, 'static_friction_force_y', 0.0018091, ...
-%                 'Ty', 19.549, 'Tsy_u', 1.0234, 'X_Gain', 62.042, 'static_friction_force_x', 0.0024365, ...
-%                 'Tz', 572.17, 'Tsz_u', 9.1999, 'Z_Gain', 44.14, 'static_friction_force_z', 13.631, ...
-%                 'FaX', 0.0094067, 'FaY', 0.022201, 'l0', 0.18808, 'mc', 0.468, 'mY', 1.155, 'mX', 3.3550, 'g', 9.81);
-
-%%FINAL PARAMETERS!!
 defaultParams = struct('Tx', 39.108, 'Tsx_u', 2.7741, 'Y_Gain',9.5952, 'static_friction_force_y', 0.0018091, ...
                 'Ty', 19.549, 'Tsy_u', 1.0234, 'X_Gain', 59.065, 'static_friction_force_x', 0.0016816, ...
                 'Tz', 539.37, 'Tsz_u', 8.3732, 'Z_Gain', 41.809, 'static_friction_force_z', 13.176, ...
                 'FaX', 0.013824, 'FaY', 0.0071167, 'l0', 0.18606, 'mc', 0.468, 'mY', 1.155, 'mX', 3.3550, 'g', 9.81);
-%%FINAL PARAMETERS Manually adjusted satic friction!!
-% defaultParams = struct('Tx', 39.108, 'Tsx_u', 2.7741, 'Y_Gain',9.5952, 'static_friction_force_y', 0, ...
-%                 'Ty', 19.549, 'Tsy_u', 1.0234, 'X_Gain', 59.065, 'static_friction_force_x', 0, ...
-%                 'Tz', 539.37, 'Tsz_u', 8.3732, 'Z_Gain', 41.809, 'static_friction_force_z', 13.176, ...
-%                 'FaX', 0.013824, 'FaY', 0.0071167, 'l0', 0.18606, 'mc', 0.468, 'mY', 1.155, 'mX', 3.3550, 'g', 9.81);
-
-% NO!
-% defaultParams = struct('Tx', 32.108, 'Tsx_u', 2.7741, 'Y_Gain',7.5952, 'static_friction_force_y', 0, ...
-%                 'Ty', 11.549, 'Tsy_u', 1.0234, 'X_Gain', 59.065, 'static_friction_force_x', 0, ...
-%                 'Tz', 539.37, 'Tsz_u', 8.3732, 'Z_Gain', 41.809, 'static_friction_force_z', 13.176, ...
-%                 'FaX', 0.013824, 'FaY', 0.0071167, 'l0', 0.18606, 'mc', 0.468, 'mY', 1.155, 'mX', 3.3550, 'g', 9.81);
-
-% Check if additional arguments (params structure) are passed
 if ~isempty(varargin)
     % Override default values with passed arguments
     params = varargin{1};
@@ -44,7 +21,7 @@ else
     params = defaultParams;
 end
 end
-% Now use params.mc, params.mw, etc., in your function logic
+
 mL = params.mc;
 mT = params.mX; % X
 mY = params.mY; % Y
@@ -64,7 +41,7 @@ Z_Gain = params.Z_Gain;
 static_friction_force_z = params.static_friction_force_z;
 static_friction_force_y = params.static_friction_force_y;
 static_friction_force_x = params.static_friction_force_x;
-% Your function logic continues here...
+
 
 
 % Input normalization
@@ -135,9 +112,8 @@ et10 = t4.*t7.*t26.*t31.*t34.*un2-t4.*t5.*t8.*t13.*t26.*1.0./t38.^5.*2.0+Fay.*mL
 et11 = Tx_d.*t4.*t7.*t10.*t18.*t35.*t39-Ty.*t3.*t4.*t7.*t26.*t31.*t34-Ty_d.*t4.*t7.*t26.*t31.*t34.*t40+Tz.*t4.*t5.*t7.*t19.*t24.*t31+Tz.*t4.*t5.*t7.*t19.*t26.*t31+Tz_d.*t4.*t7.*t19.*t24.*t31.*t41+Tz_d.*t4.*t7.*t19.*t26.*t31.*t41-mL.*mT.*mY.*t4.*t5.*t13.*t18.*2.0+g.*mT.*t4.*t7.*t9.*t19.*t32+g.*mT.*t4.*t7.*t9.*t18.*t35-g.*mY.*t4.*t7.*t9.*t18.*t19+g.*mY.*t4.*t7.*t18.*t19.*t25+g.*t4.*t7.*t9.*t16.*t18.*t19+g.*t4.*t8.*t9.*t18.*t19.*t26-g.*t4.*t8.*t9.*t19.*t26.*t32-g.*t4.*t8.*t9.*t18.*t26.*t35+mL.*mY.*t4.*t10.*t18.*t19.*un1+mT.*t4.*t5.*t7.*t13.*t18.*t34.*2.0+mY.*t4.*t5.*t7.*t13.*t18.*t24.*2.0+mY.*t4.*t5.*t7.*t13.*t26.*t32.*2.0+mY.*t7.*t17.*t19.*t22.*t24.*t31+mY.*t7.*t17.*t19.*t22.*t26.*t31;
 et12 = t4.*t5.*t8.*t13.*t18.*t24.*t34.*-2.0+t4.*t5.*t8.*t13.*t18.*t26.*t34.*2.0-t4.*t5.*t8.*t13.*t18.*t26.*t36.*2.0-t4.*t5.*t8.*t13.*t26.*t32.*t34.*4.0+Tx.*mY.*t2.*t4.*t10.*t14.*t18.*t19+Tx_d.*mY.*t4.*t10.*t14.*t18.*t19.*t39+g.*mT.*mY.*t4.*t9.*t14.*t18.*t19+g.*mY.*t4.*t7.*t9.*t18.*t19.*t26+mY.*t4.*t5.*t7.*t13.*t18.*t26.*t34.*2.0;
 derivatives = [t2;t3;t5;t11;t13;t20.*t38.*t51.*(-Fax.*t9.*t11-t4.*t18.*un1+Tx.*t2.*t4.*t18+Tx_d.*t4.*t18.*t39+t10.*t17.*t22.*t44+t4.*t10.*t31.*un3+Fay.*t10.*t13.*t18.*t19-Tz.*t4.*t5.*t10.*t31-Tz_d.*t4.*t10.*t31.*t41+mL.*t10.*t17.*t22.*t33+t10.*t17.*t22.*t34.*t42+g.*mL.*t4.*t9.*t10.*t32+g.*t4.*t9.*t10.*t14.*t18+g.*t4.*t9.*t10.*t18.*t43);t20.*t49.*(t4.*un2+Fay.*t13.*t18-Ty.*t3.*t4-Ty_d.*t4.*t40-t4.*t19.*un3+Tz.*t4.*t5.*t19+Tz_d.*t4.*t19.*t41);-t15.*t20.*t49.*t51.*(et1+et2+et3+et4+et5);-(t15.*t21.*t51.*(et6+et7))./t31;-t15.*t21.*t38.*t49.*t51.*(et8+et9+et10+et11+et12)]';
-% derivatives = [t2;t3;t5;t11;t13;t20.*t38.*t51.*(-Fax.*t9.*t11-t4.*t18.*un1+Tx.*t2.*t4.*t18+Tx_d.*t4.*t18.*t39+t10.*t17.*t22.*t44+t4.*t10.*t31.*un3+Fay.*t10.*t13.*t18.*t19-Tz.*t4.*t5.*t10.*t31-Tz_d.*t4.*t10.*t31.*t41+mL.*t10.*t17.*t22.*t33+t10.*t17.*t22.*t34.*t42+g.*mL.*t4.*t9.*t10.*t32+g.*t4.*t9.*t10.*t14.*t18+g.*t4.*t9.*t10.*t18.*t43);t20.*t49.*(t4.*un2+Fay.*t13.*t18-Ty.*t3.*t4-Ty_d.*t4.*t40-t4.*t19.*un3+Tz.*t4.*t5.*t19+Tz_d.*t4.*t19.*t41);-t15.*t20.*t49.*t51.*(et1+et2+et3+et4+et5);0;0]';
 
-epsilon = 0.005;
+epsilon = 0.005; % Numeric treshhold for static dry friction
 if (abs(derivatives(8)) <= static_friction_force_z && abs(t5) <= epsilon)
     derivatives(3) = 0;
     derivatives(8)=0;
@@ -156,5 +132,4 @@ end
 
 
 end
-% Main script or function - Implement the model logic here
-% Example: Loop over time, update states, compute outputs, etc.
+
