@@ -1,4 +1,8 @@
-function [f, f_ipopt,cost_function,constraint_function_left,constraint_function_g,constraint_function_right] = ConstructOCP_X()
+function [f, f_ipopt,cost_function,constraint_function_left,constraint_function_g,constraint_function_right] = Construct_OCP_X(compile_C_Api)
+arguments
+compile_C_Api logical = false
+end
+
 %% Make sure the correct models and scripts are in the path
 import casadi.*
 addpath(['src'])
@@ -6,7 +10,11 @@ currentDir = pwd;
 parentDir = fileparts(currentDir);
 modelsDir = fullfile(parentDir, 'Models');
 addpath(modelsDir);
-
+try
+addpath('/home/heib/Documents/CASADI')
+catch
+error('replace this hardcoded path with your casadi path')
+end
 %% Define main properties
 nx              = 4;           % Size of the state
 nu              = 1;           % Size of input u
@@ -132,7 +140,7 @@ upper_bound = [0.5,  pi/5, 0.5,  -pi/2.5];
 ocp.subject_to(lower_bound'<= x < upper_bound');
 
 % construct function for object handling
-f = ocp.to_function('f1',{ocp.p},{full(full(u_dec)),full(cost)});
+f = ocp.to_function('f',{ocp.p},{full(full(u_dec)),full(cost)});
 opts.ipopt.print_level = 0;
 ocp.solver('ipopt',opts);
 
@@ -143,6 +151,20 @@ cost_function = Function('f',{ocp.p,u_dec},{full(ocp.f)});
 constraint_function_left= Function('leq',{ocp.p,u_dec},{ocp.lbg});
 constraint_function_g = Function('g',{ocp.p,u_dec},{ocp.g});
 constraint_function_right= Function('laq',{ocp.p,u_dec},{ocp.ubg});
+
+% If to be run i simulink
+if compile_C_Api
+f = ocp.to_function('f',[primitives(x0_p),{x_dec, u, t_p, ocp.lam_g}],{(full(u(:,1:end))), [(full(x(:,1))) (full(x_dec(:,:)))],(full(ocp.lam_g)),full(x_X_ref),full(u_X_ref)});
+file_name = 'f.casadi';
+f.save(file_name);
+%% Compile MEx funciton 
+import casadi.*
+lib_path = GlobalOptions.getCasadiPath();
+inc_path = GlobalOptions.getCasadiIncludePath();
+currentpath = pwd;
+parentDir = fileparts(currentDir);
+mex('-v',['-I' inc_path],['-L' lib_path],'-lcasadi', [parentDir filesep 'Construct_OCPs' filesep 'src' filesep 'casadi_fun.c'])
+end
 end
 
 

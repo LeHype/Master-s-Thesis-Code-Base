@@ -1,4 +1,8 @@
-function [f, f_ipopt,cost_function,constraint_function_left,constraint_function_g,constraint_function_right] = ConstructOCP_X()
+function [g, f_ipopt,cost_function,constraint_function_left,constraint_function_g,constraint_function_right] = Construct_OCP_Y(compile_C_Api)
+arguments
+compile_C_Api logical = false
+end
+
 %% Make sure the correct models and scripts are in the path
 import casadi.*
 addpath(['src'])
@@ -132,7 +136,7 @@ upper_bound = [0.6,  pi/5, 0.5,  -pi/2.5];
 ocp.subject_to(lower_bound'<= x < upper_bound');
 
 % construct function for object handling
-f = ocp.to_function('f1',{ocp.p},{full(full(u_dec)),full(cost)});
+g = ocp.to_function('g',{ocp.p},{full(full(u_dec)),full(cost)});
 opts.ipopt.print_level = 0;
 ocp.solver('ipopt',opts);
 
@@ -143,6 +147,21 @@ cost_function = Function('f',{ocp.p,u_dec},{full(ocp.f)});
 constraint_function_left= Function('leq',{ocp.p,u_dec},{ocp.lbg});
 constraint_function_g = Function('g',{ocp.p,u_dec},{ocp.g});
 constraint_function_right= Function('laq',{ocp.p,u_dec},{ocp.ubg});
+
+% If to be run i simulink
+if compile_C_Api
+% Save to file
+file_name = 'g.casadi';
+g.save(file_name);
+%% Compile MEx funciton 
+import casadi.*
+lib_path = GlobalOptions.getCasadiPath();
+inc_path = GlobalOptions.getCasadiIncludePath();
+currentpath = pwd;
+parentDir = fileparts(currentDir);
+mex('-v',['-I' inc_path],['-L' lib_path],'-lcasadi', [parentDir filesep 'Construct_OCPs' filesep 'src' filesep 'g_casadi_fun.c'])
+%%
+end
 end
 
 
